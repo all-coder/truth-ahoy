@@ -1,0 +1,54 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.env/
+env/
+.venv/
+ENV/
+
+# Environment and secrets
+*.env
+*.env.*
+
+# Bytecode and logs
+*.log
+*.pot
+*.pyc
+
+# Testing
+.coverage
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+
+# PyInstaller
+*.spec
+dist/
+build/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Django / Flask specific
+*.sqlite3
+db.sqlite3
+instance/
+*.db
+
+# VSCode / IDE settings
+.vscode/
+.idea/
+*.swp
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Other package/dep caches
+pip-log.txt
+pip-delete-this-directory.txt
