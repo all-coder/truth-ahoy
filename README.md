@@ -33,7 +33,7 @@ pip install -r requirements.txt
 
 ## .env 
 
-`
+```
 # can skip over Reddit credentials, haven't integrated them as tools yet.
 REDDIT_USERNAME =
 REDDIT_PASSWORD =
@@ -44,4 +44,4 @@ GOOGLE_GENAI_USE_VERTEXAI=FALSE
 GOOGLE_API_KEY=
 GEMINI_MODEL=gemini-1.5-flash
 USE_OLLAMA=false
-`
+```
