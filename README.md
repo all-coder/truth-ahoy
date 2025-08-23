@@ -26,6 +26,11 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+## Testing
+```
+# run this command at the project root
+python backend/main.py
+```
 
 ## Dev
 - After installing new packages into the environment, make sure to do `pip freeze > requirements.txt`
