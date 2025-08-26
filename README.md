@@ -34,12 +34,14 @@ python backend/main.py
 
 ## Dev
 - After installing new packages into the environment, make sure to do `pip freeze > requirements.txt`
-- Note : OLLAMA integration not working yet, use GEMINI API KEY only.
+- Ensure that every tool intended for use by an agent or within a workflow includes a well-annotated docstring. Proper docstrings are essential for agents to understand and correctly utilize the tool
+
+## Important Notes
+- OLLAMA integration not working yet, use GEMINI API KEY only.
+- We are using Tavily API as our primary search engine for now, it has a free tier of 1000 monthly credits, we will go with it for now for testing and dev purposes. We will switch to google search in production / deployment.
 
 ## .env 
-
 ```
-# can skip over Reddit credentials, haven't integrated them as tools yet.
 REDDIT_USERNAME =
 REDDIT_PASSWORD =
 REDDIT_CLIENT_ID =
@@ -48,5 +50,9 @@ OLLAMA_MODEL=llama3.2:latest
 GOOGLE_GENAI_USE_VERTEXAI=FALSE
 GOOGLE_API_KEY=
 GEMINI_MODEL=gemini-1.5-flash
+TAVILY_API_KEY=""
+
+# conditionals
+USE_TAVILY=true
 USE_OLLAMA=false
 ```
