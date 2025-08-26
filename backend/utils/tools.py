@@ -49,6 +49,7 @@ def search_through_reddit(urls: List[str]) -> Dict[Any]:
         return {"status": "failure", "error_message": "No Reddit URLs provided"}
     try:
         reddit = RedditRetriever()
+        results = reddit.get_and_process_data(urls, max_depth=3)
     except Exception as e:
         return {"status": "failure", "error_message": str(e)}
-    return {"status": "success", "data": reddit.search(urls)}
+    return {"status": "success", "data": results}
