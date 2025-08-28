@@ -4,7 +4,6 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 from google.genai import types
 from google.adk.models.lite_llm import LiteLlm
-from dotenv import load_dotenv
 
 #relative imports
 from backend.agents.deep_analyst.agent import DeepAnalystAgent
