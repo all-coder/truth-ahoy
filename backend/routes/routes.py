@@ -8,7 +8,7 @@ import logging
 
 router = APIRouter()
 
-APP_NAME = "adk-hybrid-architecture"
+APP_NAME = "fact-check-extension"
 USER_ID = "user-001"
 session_service = InMemorySessionService()
 

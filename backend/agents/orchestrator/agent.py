@@ -1,29 +1,16 @@
 # necessary imports
-import os
 from google.adk.agents import Agent
 from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 from google.genai import types
-from dotenv import load_dotenv
 from google.adk.models.lite_llm import LiteLlm
 from dotenv import load_dotenv
-load_dotenv()
 
-# relative imports
+#relative imports
 from backend.agents.deep_analyst.agent import DeepAnalystAgent
+from utils.helpers import get_model
 
-USE_OLLAMA = os.getenv("USE_OLLAMA", "false").lower() == "true"
-
-if USE_OLLAMA:
-    OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:latest")
-    model = LiteLlm(
-        api_base='http://localhost:11434/v1',
-        model=f'openai/{OLLAMA_MODEL}',
-        api_key='dummy'
-    )
-else:
-    model = os.getenv("GEMINI_MODEL")
-
+model = get_model()
 CoordinatorAgent = Agent(
     name="Coordinator",
     model=model,
