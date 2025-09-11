@@ -52,3 +52,12 @@ Thumbs.db
 # Other package/dep caches
 pip-log.txt
 pip-delete-this-directory.txt
+
+# Deepfake
+deepfake/inpainting/
+deepfake/wiki/
+cache/
+deepfake_data_reorganized/
+efficientnet-b1-deepfake-detector/
+deepfake/hf.py
+deepfake/hfcnn.py
