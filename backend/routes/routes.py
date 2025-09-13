@@ -36,7 +36,7 @@ async def run_orchestrator(query: str):
 
 def process_agent_response(response_text: str) -> dict:
     if not response_text:
-        return {"error": "No response from agent"}
+        return {"error": "No response from agent", "status_code": 400}
     
     if response_text.strip().startswith('{') and response_text.strip().endswith('}'):
         try:
@@ -44,23 +44,24 @@ def process_agent_response(response_text: str) -> dict:
             
             if isinstance(parsed, dict):
                 if "name" in parsed and parsed.get("name") == "transfer_to_agent":
-                    return {"error": "Agent transfer not properly handled", "raw_response": parsed}
+                    return {"error": "Agent transfer not properly handled", "raw_response": parsed, "status_code": 400}
                 
                 if "result" in parsed:
-                    result = parsed["result"]
-                    if isinstance(result, str) and result.startswith('{'):
+                    response = parsed["result"]
+                    if isinstance(response, str) and response.startswith('{'):
                         try:
-                            return {"result": json.loads(result)}
+                            return {"response": json.loads(response), "status_code": 200}
                         except json.JSONDecodeError:
-                            return {"result": result}
-                    return {"result": result}
+                            return {"response": response, "status_code": 200}
+                    return {"response": response, "status_code": 200}
                 
-                return parsed
+                return {**parsed, "status_code": 200}
             
         except json.JSONDecodeError:
             pass
     
-    return {"result": response_text}
+    return {"response": response_text, "status_code": 200}
+
 
 @router.post("/process")
 async def process_query(query: str = Body(..., embed=True)):
@@ -120,25 +121,3 @@ async def debug_query(query: str = Body(..., embed=True)):
             "error": str(e),
             "query": query
         }
-
-@router.post("/simple")
-async def simple_process(query: str = Body(..., embed=True)):
-    try:
-        raw_response = await run_orchestrator(query)
-        print(f"DEBUG - Raw response: {raw_response}")
-        print(f"DEBUG - Response type: {type(raw_response)}")
-        
-        if isinstance(raw_response, str):
-            try:
-                if raw_response.strip().startswith('{'):
-                    parsed = json.loads(raw_response)
-                    return parsed
-            except:
-                pass
-            
-            return {"answer": raw_response}
-        
-        return {"answer": str(raw_response)}
-        
-    except Exception as e:
-        return {"error": f"Processing failed: {str(e)}"}

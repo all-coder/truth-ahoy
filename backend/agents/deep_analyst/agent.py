@@ -1,5 +1,5 @@
 # DeepAnalystAgent.py
-from google.adk.agents import BaseAgent
+from google.adk.agents import BaseAgent, LlmAgent
 from google.genai import types
 from dotenv import load_dotenv
 from typing import AsyncGenerator
@@ -15,11 +15,28 @@ from backend.agents.web_agent.agent import WebAgent
 load_dotenv()
 model = get_model()
 
+summarizer_agent = LlmAgent(
+    name="SummarizerAgent",
+    model=model,
+    instruction=(
+        """You are a Reddit summarizer.
+       User's statement: {search_query}
+       Web summary: {reddit_summary}
+
+       Provide ONLY a concise summary in bullet points.
+       Do NOT include explanations, commentary, or any extra text.
+       Focus solely on whether the user's statement is correct or incorrect and why"""
+    ),
+    output_key="analysis_output",
+)
+
+
 class DeepAnalystAgent(BaseAgent):
     web_agent: WebAgent
     web_agent_tool: AgentTool
+    deep_analyst_summarizer: LlmAgent
     model_config = {"arbitrary_types_allowed": True}
-    
+
     def __init__(self, name: str = "DeepAnalyst"):
         """
         Initializes the DeepAnalystAgent.
@@ -27,16 +44,20 @@ class DeepAnalystAgent(BaseAgent):
         web_agent = WebAgent()
         web_agent_tool = AgentTool(agent=web_agent)
         sub_agents_list = [web_agent]
+        deep_analyst_summarizer = summarizer_agent
         super().__init__(
             name=name,
             description="Breaks down the user's statement, calls WebAgent to get summarized info, and provides bullet points on why the statement is right or wrong.",
             web_agent=web_agent,
             web_agent_tool=web_agent_tool,
             sub_agents=sub_agents_list,
+            deep_analyst_summarizer=deep_analyst_summarizer,
         )
 
     @override
-    async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
+    async def _run_async_impl(
+        self, ctx: InvocationContext
+    ) -> AsyncGenerator[Event, None]:
         """
         Implements the analysis workflow.
         """
@@ -45,51 +66,39 @@ class DeepAnalystAgent(BaseAgent):
             yield Event(
                 author=self.name,
                 content=Content(
-                    role="assistant",
-                    parts=[Part(text="No input provided")]
-                )
+                    role="assistant", parts=[Part(text="No input provided")]
+                ),
             )
             return
 
         ctx.session.state["search_query"] = user_fact
         async for event in self.web_agent._run_async_impl(ctx):
             pass
-        web_result = ctx.session.state.get("web_agent_result")  # Assuming WebAgent saves result here
-        reddit_summary = None
-        if web_result:
-            reddit_summary = web_result.get("reddit_summary")
+        web_result = ctx.session.state.get("web_agent_result")
+        print("--DEEP ANALYST AGENT : WEB_AGENT RESULT--")
+        reddit_summary = web_result.get("reddit_summary") if web_result else None
 
         if not reddit_summary:
             state_keys = list(ctx.session.state.keys())
             yield Event(
                 author=self.name,
                 content=Content(
-                    role="assistant", 
-                    parts=[Part(text=f"No data from WebAgent. Available state keys: {state_keys}. State: {dict(ctx.session.state)}")]
-                )
+                    role="assistant",
+                    parts=[
+                        Part(
+                            text=f"Deep Analyst Agent : Failed Analysis, No data from WebAgent"
+                        )
+                    ],
+                ),
             )
             return
 
-        prompt = (
-            f"User's statement: {user_fact}\n"
-            f"Web summary: {reddit_summary}\n\n"
-            "Provide clear bullet points explaining whether the user's statement is correct or incorrect, and why."
-        )
+        analysis_output = None
+        async for event in self.deep_analyst_summarizer.run_async(ctx):
+            analysis_output = event.content.parts[0].text
+            yield event
 
-        response = await ctx.model.generate_content(
-            [prompt],
-            config=types.GenerateContentConfig(temperature=0.5)
-        )
-
-        analysis_output = ""
-        if response.candidates:
-            analysis_output = response.candidates[0].content.parts[0].text
-        
-        ctx.session.state["analysis_output"] = analysis_output
         yield Event(
             author=self.name,
-            content=Content(
-                role="assistant",
-                parts=[Part(text=analysis_output)]
-            )
+            content=Content(role="assistant", parts=[Part(text=analysis_output)]),
         )
