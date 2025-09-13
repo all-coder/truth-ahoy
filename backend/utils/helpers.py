@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
-from litellm import LiteLlm
+from google.adk.models.lite_llm import LiteLlm
+
 
 load_dotenv()
 

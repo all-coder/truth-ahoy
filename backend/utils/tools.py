@@ -13,7 +13,7 @@ from utils.bots.reddit import RedditRetriever
 load_dotenv()
 
 
-def search_using_tavily(query: str) -> Dict[Any]:
+def search_using_tavily(query: str) -> Dict[str,Any]:
     """
     Retrieves search results from the Tavily API.
 
@@ -34,11 +34,12 @@ def search_using_tavily(query: str) -> Dict[Any]:
     return {"status": "success", "data": response["results"]}
 
 
-def search_through_reddit(urls: List[str]) -> Dict[Any]:
+def search_through_reddit(urls: List[str]) -> Dict[str,Any]:
     """
     Searches for the given URLs on Reddit.
+    
     Args:
-        urls (List[str]): A list of Reddit URLs to search for.
+        urls (List[str]): A list of urls to search for on Reddit.
 
     Returns:
         dict: A dictionary containing the search results.
@@ -51,5 +52,5 @@ def search_through_reddit(urls: List[str]) -> Dict[Any]:
         reddit = RedditRetriever()
         results = reddit.get_and_process_data(urls, max_depth=3)
     except Exception as e:
-        return {"status": "failure", "error_message": str(e)}
+        return {"status": "Reddit Search Failed", "error_message": str(e)}
     return {"status": "success", "data": results}

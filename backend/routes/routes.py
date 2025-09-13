@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, HTTPException
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai.types import Content, Part
-from agents.orchestrator.agent import CoordinatorAgent
+from agents.orchestrator.agent import OrchestratorAgent
 import json
 import logging
 
@@ -15,10 +15,10 @@ session_service = InMemorySessionService()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def run_coordinator(query: str):
+async def run_orchestrator(query: str):
     try:
         session = await session_service.create_session(app_name=APP_NAME, user_id=USER_ID)
-        runner = Runner(agent=CoordinatorAgent, app_name=APP_NAME, session_service=session_service)
+        runner = Runner(agent=OrchestratorAgent(), app_name=APP_NAME, session_service=session_service)
 
         content = Content(role="user", parts=[Part(text=query)])
         final_text = None
@@ -31,7 +31,7 @@ async def run_coordinator(query: str):
         return final_text or "No response generated"
         
     except Exception as e:
-        logger.error(f"Error in run_coordinator: {str(e)}")
+        logger.error(f"Error in run_orchestrator: {str(e)}")
         raise e
 
 def process_agent_response(response_text: str) -> dict:
@@ -64,9 +64,10 @@ def process_agent_response(response_text: str) -> dict:
 
 @router.post("/process")
 async def process_query(query: str = Body(..., embed=True)):
+    print("HIT ENDPOINT")
     try:
         logger.info(f"Processing query: {query}")
-        raw_response = await run_coordinator(query)
+        raw_response = await run_orchestrator(query)
         logger.info(f"Raw response: {raw_response}")
         processed_response = process_agent_response(raw_response)
         logger.info(f"Processed response: {processed_response}")
@@ -79,7 +80,7 @@ async def process_query(query: str = Body(..., embed=True)):
 @router.post("/process-text")
 async def process_query_text_only(query: str = Body(..., embed=True)):
     try:
-        response = await run_coordinator(query)
+        response = await run_orchestrator(query)
         
         if response and response.strip().startswith('{'):
             try:
@@ -104,7 +105,7 @@ async def process_query_text_only(query: str = Body(..., embed=True)):
 @router.post("/debug")
 async def debug_query(query: str = Body(..., embed=True)):
     try:
-        response = await run_coordinator(query)
+        response = await run_orchestrator(query)
         
         return {
             "query": query,
@@ -123,7 +124,7 @@ async def debug_query(query: str = Body(..., embed=True)):
 @router.post("/simple")
 async def simple_process(query: str = Body(..., embed=True)):
     try:
-        raw_response = await run_coordinator(query)
+        raw_response = await run_orchestrator(query)
         print(f"DEBUG - Raw response: {raw_response}")
         print(f"DEBUG - Response type: {type(raw_response)}")
         
