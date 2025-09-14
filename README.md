@@ -1,5 +1,3 @@
-# 
-
 ## DEV NOTES
 - OLLAMA integration not working yet, use GEMINI API KEY only.
 - We are using Tavily API as our primary search engine for now, it has a free tier of 1000 monthly credits, we will go with it for now for testing and dev purposes. We will switch to google search in production / deployment.
