@@ -7,6 +7,7 @@ from typing import List, Dict, Any
 # relative imports
 from utils.bots.reddit import RedditRetriever
 from utils.vision import reverse_image_search, detect_landmarks
+from utils.bots.news import extract_news
 
 # please do ensure that each tool (if going to be used for agent or not) definition includes properly annotated docstrings,
 # as they are essential for agents to correctly utilize the tools.
@@ -102,3 +103,31 @@ def detect_landmarks_present_in_image(image_base64: str) -> Dict[str, Any]:
     except Exception as e:
         return {"status": "failure", "error_message": str(e)}
     return {"status": "success", "data": results}
+
+def extract_news_articles(urls: List[str]) -> Dict[str, Any]:
+    """
+    Extracts news articles from the given list of URLs and returns their
+    extracted content if successful.
+
+    Args:
+        urls (List[str]): List of news article URLs.
+
+    Returns:
+        dict: A dictionary containing the extraction results.
+        Includes a status key indicating success or failure.
+    """
+    if not urls:
+        return {"status": "failure", "error_message": "No URLs provided"}
+    try:
+        results = extract_news(urls)
+        filtered_results = {}
+        for url, content in results["extracted_content"].items():
+            if "error" not in content:
+                filtered_results[url] = content
+        if not filtered_results:
+            return {"status": "failure", "error_message": "No valid content extracted"}
+        return {"status": "success", "data": filtered_results}
+    except Exception as e:
+        return {"status": "failure", "error_message": str(e)}
+
+
