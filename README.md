@@ -1,5 +1,10 @@
 # 
 
+## DEV NOTES
+- OLLAMA integration not working yet, use GEMINI API KEY only.
+- We are using Tavily API as our primary search engine for now, it has a free tier of 1000 monthly credits, we will go with it for now for testing and dev purposes. We will switch to google search in production / deployment.
+- Currently, only Reddit is being used as primary source of information, will expand into other web sources soon.
+
 ## Setting Up 
 
 ### 1. Create and Activate Virtual Environment
@@ -32,13 +37,10 @@ pip install -r requirements.txt
 python backend/main.py
 ```
 
-## Dev
+## Dev Rules
 - After installing new packages into the environment, make sure to do `pip freeze > requirements.txt`
 - Ensure that every tool intended for use by an agent or within a workflow includes a well-annotated docstring. Proper docstrings are essential for agents to understand and correctly utilize the tool
 
-## Important Notes
-- OLLAMA integration not working yet, use GEMINI API KEY only.
-- We are using Tavily API as our primary search engine for now, it has a free tier of 1000 monthly credits, we will go with it for now for testing and dev purposes. We will switch to google search in production / deployment.
 
 ## .env 
 ```

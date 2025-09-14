@@ -11,25 +11,11 @@ from google.adk.tools.agent_tool import AgentTool
 
 from utils.helpers import get_model
 from backend.agents.web_agent.agent import WebAgent
+from backend.agents.summary.agent import SummaryAgent
 
-load_dotenv()
+
 model = get_model()
-
-summarizer_agent = LlmAgent(
-    name="SummarizerAgent",
-    model=model,
-    instruction=(
-        """You are a Reddit summarizer.
-       User's statement: {search_query}
-       Web summary: {reddit_summary}
-
-       Provide ONLY a concise summary in bullet points.
-       Do NOT include explanations, commentary, or any extra text.
-       Focus solely on whether the user's statement is correct or incorrect and why"""
-    ),
-    output_key="analysis_output",
-)
-
+summarizer_agent = SummaryAgent
 
 class DeepAnalystAgent(BaseAgent):
     web_agent: WebAgent
