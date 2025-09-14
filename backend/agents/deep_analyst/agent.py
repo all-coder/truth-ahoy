@@ -19,16 +19,19 @@ summarizer_agent = LlmAgent(
     name="SummarizerAgent",
     model=model,
     instruction=(
-        """You are a Reddit summarizer.
+        """You are an information summarizer.
        User's statement: {search_query}
-       Web summary: {reddit_summary}
+       Source summary: {source_summary}
 
-       Provide ONLY a concise summary in bullet points.
-       Do NOT include explanations, commentary, or any extra text.
-       Focus solely on whether the user's statement is correct or incorrect and why"""
+       Provide ONLY:
+       - A concise summary of the information in bullet points.
+       - A clear explanation in detail of why the user's statement is correct or incorrect.
+
+       Do NOT include commentary, opinions, or extra text beyond the summary and explanation."""
     ),
     output_key="analysis_output",
 )
+
 
 
 class DeepAnalystAgent(BaseAgent):
