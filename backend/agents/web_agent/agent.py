@@ -118,10 +118,9 @@ class WebAgent(BaseAgent):
                 except Exception:
                     queries_list = [raw_text]
             yield event
-        print("QUERIES LIST",queries_list)
         # if query_maker failed, create fallback queries
         if not queries_list or not isinstance(queries_list, list):
-            print("QUERIES LIST FAILED, SO FAllBACK QUERIES")
+            print("QUERIES LIST FAILED, FAllBACK QUERIES CREATED")
             queries_list = [
                 f"{user_statement} news",
                 f"{user_statement} latest updates",
@@ -146,18 +145,14 @@ class WebAgent(BaseAgent):
                 # News URLs (everything else)
                 news_urls.extend([url for url in urls if "reddit.com" not in url])
 
-        print("ALL RESULTS",all_results)
         # loading the urls onto state
         ctx.session.state["reddit_urls"] = reddit_urls
         ctx.session.state["news_urls"] = news_urls
-        print("REDDIT URLS", reddit_urls)
-        print("NEWS URLS", news_urls)
 
         # we are doing reddit and news analysis alone
         reddit_analysis = None
         if reddit_urls:
             reddit_urls_to_use = reddit_urls[:2]  
-            print("PRINTING REDDIT URLS", reddit_urls_to_use)
             async for event in self.reddit_agent.run_async(ctx):
                 reddit_analysis = event.content.parts[0].text
                 yield event
@@ -165,7 +160,6 @@ class WebAgent(BaseAgent):
         news_analysis = None
         if news_urls:
             news_urls_to_use = news_urls[:4] 
-            print("PRINTING NEWS URLS", news_urls_to_use)
             async for event in self.news_agent.run_async(ctx):
                 news_analysis = event.content.parts[0].text
                 yield event
