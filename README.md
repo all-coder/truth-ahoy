@@ -1,5 +1,7 @@
 ## Updates
-
+- The Web Agent has been fully implemented.  
+- We are adding a new feature to ensure responsible action: the tool will send emails or community posts to alert users about new threats or scams reported by others.  
+  - A specialized database will be maintained to track reported threats and community alerts.  
 - We will initially test the `Trafilatura` library for generic web scraping. Since most news articles are statically rendered, extracting content and image URLs should be straightforward. In the future, to handle dynamically rendered news portals more effectively, we plan to use a hybrid approach combining Playwright or Selenium with Trafilatura.
 - OLLAMA integration with ADK is currently causing issues; use the GEMINI API key for the time being.
 - We are using Tavily API as our primary search engine for now, it has a free tier of ~1000 monthly credits, we will go with it for now for testing paurposes. We will switch to google search in production / deployment.
