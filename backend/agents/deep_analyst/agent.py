@@ -11,11 +11,34 @@ from google.adk.tools.agent_tool import AgentTool
 
 from utils.helpers import get_model
 from backend.agents.web_agent.agent import WebAgent
-from backend.agents.summary.agent import SummaryAgent
 
 
 model = get_model()
-summarizer_agent = SummaryAgent
+summarizer_agent = LlmAgent(
+    name="AnalystAgent",
+    model=model,
+    instruction=(
+        """You are an information analyst. 
+        Your task is to investigate the provided statement, assess credibility, 
+        and produce a structured analytical report. 
+
+        User's statement: {search_query}
+        Web Analysis: {web_agent_analysis}
+
+        Provide ONLY:
+        1. **Key Findings (bullet points)** – Summarize the most important insights.  
+        2. **Detailed Analysis (paragraphs)** – Cover the following aspects:  
+            • Credibility assessment of the sources.  
+            • Indicators of authenticity or misinformation (e.g., factual consistency, anomalies).  
+            • Contextual factors: missing details, potential biases, or manipulation signals.  
+            • Practical guidance for the user on how to critically evaluate similar content.  
+
+        Your response must read like a detailed report, not a casual summary. 
+        Do not add extra labels, disclaimers, or commentary beyond the required structure."""
+    ),
+    output_key="analysis_output",
+)
+
 
 class DeepAnalystAgent(BaseAgent):
     web_agent: WebAgent
@@ -60,11 +83,9 @@ class DeepAnalystAgent(BaseAgent):
         ctx.session.state["search_query"] = user_fact
         async for event in self.web_agent._run_async_impl(ctx):
             pass
-        web_result = ctx.session.state.get("web_agent_result")
+        web_agent_analysis = ctx.session.state.get("web_agent_analysis")
         print("--DEEP ANALYST AGENT : WEB_AGENT RESULT--")
-        reddit_summary = web_result.get("reddit_summary") if web_result else None
-
-        if not reddit_summary:
+        if not web_agent_analysis:
             state_keys = list(ctx.session.state.keys())
             yield Event(
                 author=self.name,
