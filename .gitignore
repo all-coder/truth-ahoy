@@ -61,3 +61,4 @@ deepfake_data_reorganized/
 efficientnet-b1-deepfake-detector/
 deepfake/hf.py
 deepfake/hfcnn.py
+vision_gcp.json

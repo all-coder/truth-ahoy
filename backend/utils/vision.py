@@ -1,14 +1,16 @@
-from google.cloud import vision
 import base64
+from google.cloud import vision
+from helpers import get_service_key
 
+# loading the google cloud service key
+GOOGLE_CLOUD_SERVICE_KEY = get_service_key()
+client = vision.ImageAnnotatorClient.from_service_account_json(GOOGLE_CLOUD_SERVICE_KEY)
 
-# Note : 
 # it is not a complete reverse image search as GCP services don't provide one, but it would give us leads and info, 
 # which would enable us to conduct further analysis through web agent analysis.
 
 # returns a dict containing where the image was used, and gives us the labels and relevant web entities.
 def reverse_image_search(image_base64: str) -> dict:
-    client = vision.ImageAnnotatorClient()
     if "," in image_base64:
         image_base64 = image_base64.split(",")[1]
     content = base64.b64decode(image_base64)
@@ -48,7 +50,6 @@ def reverse_image_search(image_base64: str) -> dict:
 
 # detects landmarks if present in the image and returns the approximate location with latitude and longitude
 def detect_landmarks(image_base64: str) -> dict:
-    client = vision.ImageAnnotatorClient()
     if "," in image_base64:
         image_base64 = image_base64.split(",")[1]
     content = base64.b64decode(image_base64)

@@ -18,3 +18,9 @@ def get_model():
     else:
         model = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
     return model
+
+def get_service_key():
+    path = os.getenv("GOOGLE_CLOUD_SERVICE_KEY")
+    if not path or not os.path.exists(path):
+        raise FileNotFoundError(f"Service account key not found at: {path}")
+    return path
