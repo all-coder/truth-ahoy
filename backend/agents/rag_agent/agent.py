@@ -22,3 +22,10 @@ retrieval_agent = VertexAiRagRetrieval(
     similarity_top_k=5,
     vector_distance_threshold=0.6,
 )
+
+root_agent = Agent(
+    model='gemini-2.5-flash',
+    name='rag_agent',
+    instruction=return_instructions_root(),
+    tools=[retrieval_agent],
+)
