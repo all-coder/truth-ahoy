@@ -36,7 +36,7 @@ def search_using_tavily(query: str) -> Dict[str, Any]:
     return {"status": "success", "data": response["results"]}
 
 
-def search_through_reddit(urls: List[str]) -> Dict[str, Any]:
+def search_through_reddit(urls: List[str]) -> str:
     """
     Searches for the given URLs on Reddit.
 
@@ -44,7 +44,7 @@ def search_through_reddit(urls: List[str]) -> Dict[str, Any]:
         urls (List[str]): A list of urls to search for on Reddit.
 
     Returns:
-        dict: A dictionary containing the search results.
+        A formatted string containing reddit search results
         Includes a status key indicating success or failure.
 
     """
@@ -52,10 +52,11 @@ def search_through_reddit(urls: List[str]) -> Dict[str, Any]:
         return {"status": "failure", "error_message": "No Reddit URLs provided"}
     try:
         reddit = RedditRetriever()
-        results = reddit.get_and_process_data(urls, max_depth=3)
+        results = reddit.get_and_process_data(urls, max_depth=2)
+        formatted_string = reddit.format_to_string(results)
     except Exception as e:
         return {"status": "Reddit Search Failed", "error_message": str(e)}
-    return {"status": "success", "data": results}
+    return {"status": "success", "data": formatted_string}
 
 
 def reverse_image_search_sources(image_base64: str) -> Dict[str, Any]:

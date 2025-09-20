@@ -1,6 +1,6 @@
 import base64
 from google.cloud import vision
-from helpers import get_service_key
+from utils.helpers import get_service_key
 
 # loading the google cloud service key
 GOOGLE_CLOUD_SERVICE_KEY = get_service_key()
