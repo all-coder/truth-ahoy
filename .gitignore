@@ -61,4 +61,7 @@ deepfake_data_reorganized/
 efficientnet-b1-deepfake-detector/
 deepfake/hf.py
 deepfake/hfcnn.py
+
+# Copilot and related
+.copilotignore
 vision_gcp.json

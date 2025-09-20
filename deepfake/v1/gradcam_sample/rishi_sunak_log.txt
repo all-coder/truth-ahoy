@@ -1,0 +1,2 @@
+Prediction: 'real' with 100.00% confidence.
+All probabilities: Fake=0.00%, Real=100.00%

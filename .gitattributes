@@ -1,0 +1,2 @@
+deepfake/v1/model/50epochs_efficientnet_b1.pth filter=lfs diff=lfs merge=lfs -text
+deepfake/v1/model/1epoch_efficientnet_b1.pth filter=lfs diff=lfs merge=lfs -text
