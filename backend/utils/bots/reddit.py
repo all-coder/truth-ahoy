@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class RedditRetriever:
-    def __init__(self, username=None, password=None, client_id=None, secret_key=None, output_directory=None, store_locally=False):
+    def __init__(self, username=None, password=None, client_id=None, secret_key=None, output_directory=None, store_locally=False,top_n=15):
         # take from env if None
         self.username = username or os.getenv("REDDIT_USERNAME")
         self.password = password or os.getenv("REDDIT_PASSWORD")
@@ -26,6 +26,7 @@ class RedditRetriever:
             self.base_url = "https://oauth.reddit.com/"
             self.store_locally = store_locally
             self.output_directory = (output_directory or "./") + "reddit/"
+            self.top_n =top_n
 
             # checking whether the specified directory exists
             if self.store_locally:
@@ -170,6 +171,7 @@ class RedditRetriever:
             return {"comments": []}
 
         comments_data = raw_data[1]["data"]["children"]
+        comments_data = comments_data[:self.top_n]
         processed_comments = []
         for comment in comments_data:
             comment_data = comment.get("data", comment)
@@ -191,6 +193,34 @@ class RedditRetriever:
             except Exception as e:
                 print(e)
         return output_data
+    
+    def format_to_string(self, processed_data):
+        output = []
+        indent_unit = "    "
+
+        def write_post(post):
+            output.append(f"Title: {post.get('query', 'No Title')}")
+            output.append(f"Description: {post.get('description', 'No Description')}\n")
+
+            def write_comment(comment, level=0):
+                indent = indent_unit * level
+                output.append(f"{indent}{comment.get('body', 'No content')}\n")
+                for reply in comment.get("replies", []):
+                    write_comment(reply, level + 1)
+
+            for comment in post.get("comments", []):
+                write_comment(comment, level=0)
+
+        if isinstance(processed_data, list):
+            for i, post in enumerate(processed_data):
+                write_post(post)
+                if i < len(processed_data) - 1:
+                    output.append("\n" + "=" * 80 + "\n")
+        else:
+            write_post(processed_data)
+
+        return "\n".join(output).strip()
+
 
     ### run this function ###
     def get_and_process_data(self, urls, max_depth=2):
@@ -217,4 +247,3 @@ class RedditRetriever:
                 return results
             except Exception as e:
                 print(e)
-

@@ -64,3 +64,4 @@ deepfake/hfcnn.py
 
 # Copilot and related
 .copilotignore
+vision_gcp.json
