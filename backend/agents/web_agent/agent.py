@@ -9,6 +9,7 @@ from google.genai.types import Content, Part
 from typing import AsyncGenerator
 from typing_extensions import override
 from pydantic import TypeAdapter
+
 model = get_model()
 
 search_reddit_tool = FunctionTool(func=search_through_reddit)
@@ -18,9 +19,12 @@ reddit_agent = LlmAgent(
     name="RedditAnalyst",
     model=model,
     instruction=(
-        "You are a Reddit Analyst. You must call the `search_reddit_tool` "
+        "You are a Reddit Analyst. You must call the `search_through_reddit` tool EXACTLY ONCE "
         "with the provided {reddit_urls} to fetch Reddit discussions. "
-        "Once the tool returns results, generate a structured, in-depth report of the discussions. "
+        "IMPORTANT: Call the tool only once, then analyze the results. Do not make multiple tool calls.\n"
+        "If the tool does not return any data or throws an error, return 'No Analysis from Reddit' and stop.\n"
+        "Once you get the tool results, immediately analyze them and generate your final report. "
+        "Do not call any more tools after getting the results.\n\n"
         "Your report should include:\n"
         "- A concise headline/topic\n"
         "- Key points and recurring themes in the discussions\n"
@@ -29,7 +33,7 @@ reddit_agent = LlmAgent(
         "- Areas of disagreement or conflicting opinions (highlight these distinctly)\n"
         "- Any implications, trends, or takeaways from the discussion\n\n"
         "Write in a professional, analytical tone suitable for a community insights briefing. "
-        "Return only the final report."
+        "Return only the final report without any tool calls after analysis."
     ),
     tools=[search_reddit_tool],
     output_key="reddit_report",
@@ -40,9 +44,12 @@ news_agent = LlmAgent(
     name="NewsAnalyst",
     model=model,
     instruction=(
-        "You are a News Analyst. You must call the `search_through_news` "
-        "with the provided {news_urls} to fetch news article contents. "
-        "Once the tool returns results, produce a structured, in-depth analytical report. "
+        "You are a News Analyst. You must call the `extract_news_articles` tool EXACTLY ONCE "
+        "with the provided {news_urls} to fetch news article contents.\n"
+        "IMPORTANT: Call the tool only once, then analyze the results. Do not make multiple tool calls.\n"
+        "If the tool gives an error or does not provide any result, say 'No Analysis from NewsAnalyst' and stop.\n"
+        "Once you get the tool results, immediately analyze them and generate your final report. "
+        "Do not call any more tools after getting the results.\n\n"
         "Your report should include:\n"
         "- A clear headline/title\n"
         "- Verified key facts and main events\n"
@@ -54,11 +61,12 @@ news_agent = LlmAgent(
         "(e.g., differing figures, causes, or interpretations), highlight them clearly "
         "in a separate section titled 'Conflicting Reports' with source distinctions.\n\n"
         "Write in a professional, analytical tone suitable for a research or intelligence briefing. "
-        "Return only the final report."
+        "Return only the final report without any additional tool calls."
     ),
     tools=[search_through_news],
     output_key="news_report",
 )
+
 
 
 query_maker = LlmAgent(
@@ -69,6 +77,7 @@ query_maker = LlmAgent(
         "Each query should be phrased differently to capture varied aspects of the topic. "
         "At least two queries must be aimed at major news coverage (append keywords like 'news', 'latest updates', "
         "At least one query must be aimed at Reddit discussions (append 'reddit'). "
+        "Make sure the query is not too long"
         "Return the queries strictly as a valid Python list of strings, nothing else. Example format: "
         " '['query 1', 'query 2', 'query 3']' "
     ),
@@ -126,7 +135,7 @@ class WebAgent(BaseAgent):
                 f"{user_statement} latest updates",
                 f"{user_statement} reddit",
                 ]
-
+        print("QUERIES LIST", queries_list)
         # setting the state for queries
         ctx.session.state["queries"] = queries_list
         all_results, reddit_urls, news_urls = [], [], []
@@ -144,25 +153,37 @@ class WebAgent(BaseAgent):
                 reddit_urls.extend([url for url in urls if "reddit.com" in url])
                 # News URLs (everything else)
                 news_urls.extend([url for url in urls if "reddit.com" not in url])
-
+        print("all_results",all_results)
         # loading the urls onto state
-        ctx.session.state["reddit_urls"] = reddit_urls
-        ctx.session.state["news_urls"] = news_urls
-
+        # ctx.session.state["reddit_urls"] = reddit_urls
+        # ctx.session.state["news_urls"] = news_urls
+        print("REDDIT_URLS",reddit_urls)
+        print("NEWS_URLS", news_urls)
         # we are doing reddit and news analysis alone
+
+        # NOTE : Tool Calls are getting stuck in infinite loop, so we are going to manually call the functions
         reddit_analysis = None
         if reddit_urls:
-            reddit_urls_to_use = reddit_urls[:2]  
+            reddit_urls_to_use = reddit_urls[:3]
+
+            ctx.session.state["reddit_urls"] = reddit_urls_to_use
+            print(reddit_urls_to_use)
             async for event in self.reddit_agent.run_async(ctx):
+                print("Event : ",event)
                 reddit_analysis = event.content.parts[0].text
                 yield event
+            print("REDDIT ANALYSIS",reddit_analysis)
 
         news_analysis = None
         if news_urls:
             news_urls_to_use = news_urls[:4] 
+            ctx.session.state["news_urls"] = news_urls_to_use
             async for event in self.news_agent.run_async(ctx):
+                print("Event : ",event)
+                print("text", event.content)
                 news_analysis = event.content.parts[0].text
                 yield event
+            print("News Analysis", news_analysis)
         
 
         ctx.session.state["news_analysis"] = news_analysis

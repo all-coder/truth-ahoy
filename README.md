@@ -6,8 +6,9 @@
 - OLLAMA integration with ADK is currently causing issues; use the GEMINI API key for the time being.
 - We are using Tavily API as our primary search engine for now, it has a free tier of ~1000 monthly credits, we will go with it for now for testing paurposes. We will switch to google search in production / deployment.
 
-## Important Note
+## Note
 - If installing new packages onto the environment, run `pip freeze > requirements.txt` to update the `requirements.txt` file.
+- To test the Vision tools, enable the Cloud Vision API in the Google Cloud Console, then create a service account and download its key and write the filepath to the .env (default : `vision_gcp.json`)
 
 ## Setting Up
 
@@ -59,6 +60,7 @@ GOOGLE_GENAI_USE_VERTEXAI=FALSE
 GOOGLE_API_KEY=
 GEMINI_MODEL=gemini-1.5-flash
 TAVILY_API_KEY=""
+GOOGLE_CLOUD_SERVICE_KEY=vision_gcp.json
 
 # conditionals
 USE_TAVILY=true

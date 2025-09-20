@@ -68,3 +68,6 @@ test.*
 *.jpg
 
 potent-*.json
+# Copilot and related
+.copilotignore
+vision_gcp.json
