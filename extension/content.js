@@ -175,7 +175,7 @@ class FactCheckSelector {
             const y_overlap = Math.max(0, Math.min(rect.bottom, sel.y + sel.height) - Math.max(rect.top, sel.y));
             const intersectionArea = x_overlap * y_overlap;
             // Only include if at least 50% of the element is inside the selection
-            if (intersectionArea / elArea < 0.5) return false;
+            if (intersectionArea / elArea < 0.8) return false;
 
             return intersectionArea > 0;
         });
@@ -240,7 +240,8 @@ class FactCheckSelector {
     }
 
     sendToAPI(data) {
-        const dummyEndpoint = 'https://api.factcheck.example.com/analyze';
+        const dummyEndpoint =
+          "https://assignment-dip-cgi-honors.trycloudflare.com/api/fact-check";
 
         console.log('Sending data to:', dummyEndpoint);
         console.log('Payload:', JSON.stringify(data, null, 2));
