@@ -1,10 +1,6 @@
-## Updates
-- The Web Agent has been fully implemented.  
-- We are adding a new feature to ensure responsible action: the tool will send emails or community posts to alert users about new threats or scams reported by others.  
-  - A specialized database will be maintained to track reported threats and community alerts.  
-- We will initially test the `Trafilatura` library for generic web scraping. Since most news articles are statically rendered, extracting content and image URLs should be straightforward. In the future, to handle dynamically rendered news portals more effectively, we plan to use a hybrid approach combining Playwright or Selenium with Trafilatura.
-- OLLAMA integration with ADK is currently causing issues; use the GEMINI API key for the time being.
-- We are using Tavily API as our primary search engine for now, it has a free tier of ~1000 monthly credits, we will go with it for now for testing paurposes. We will switch to google search in production / deployment.
+
+# truth-ahoy
+Truth-Ahoy is an advanced information verification tool designed to help users quickly assess the authenticity of online content. It can search across multiple web sources, detect deepfake images, perform reverse image searches, and provide detailed insights to separate fact from misinformation. By combining powerful AI analysis with comprehensive web scanning, Truth-Ahoy empowers users to make informed decisions and uncover the truth behind digital media.
 
 ## Note
 - If installing new packages onto the environment, run `pip freeze > requirements.txt` to update the `requirements.txt` file.
