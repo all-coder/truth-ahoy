@@ -107,17 +107,3 @@ def rag_answer(user_query: str):
     context = "\n".join(docs["text"].tolist())
     prompt = f"Answer the following question using only this context:\n{context}\n\nQuestion: {user_query}\nAnswer:"
     return call_language_model(prompt)
-
-def example_usage():
-    """Example usage: push sample documents and query using RAG."""
-    docs = pd.DataFrame([
-        {"id": "1", "text": "Solar energy is encouraged by the renewable energy policy."},
-        {"id": "2", "text": "Wind energy projects are incentivized in the policy."},
-        {"id": "3", "text": "Coal plants are gradually phased out."}
-    ])
-    push_docs_to_bq(docs)
-    answer = rag_answer("What does the policy say about renewable energy?")
-    print(answer)
-
-if __name__ == "__main__":
-    example_usage()
