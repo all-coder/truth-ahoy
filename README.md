@@ -1,6 +1,6 @@
 
 # truth-ahoy
-Truth-Ahoy is an advanced information verification tool designed to help users quickly assess the authenticity of online content. It can search across multiple web sources, detect deepfake images, perform reverse image searches, and provide detailed insights to separate fact from misinformation. By combining powerful AI analysis with comprehensive web scanning, Truth-Ahoy empowers users to make informed decisions and uncover the truth behind digital media.
+truth-ahoy is an advanced information verification tool designed to help users quickly assess the authenticity of online content. It can search across multiple web sources, detect deepfake images, perform reverse image searches, and provide detailed insights to separate fact from misinformation. By combining powerful AI analysis with comprehensive web scanning, Truth-Ahoy empowers users to make informed decisions and uncover the truth behind digital media.
 
 ## Note
 - If installing new packages onto the environment, run `pip freeze > requirements.txt` to update the `requirements.txt` file.
