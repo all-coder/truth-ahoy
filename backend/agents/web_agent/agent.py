@@ -176,7 +176,7 @@ class WebAgent(BaseAgent):
 
         news_analysis = None
         if news_urls:
-            news_urls_to_use = news_urls[:4] 
+            news_urls_to_use = news_urls[:5] 
             ctx.session.state["news_urls"] = news_urls_to_use
             async for event in self.news_agent.run_async(ctx):
                 print("Event : ",event)

@@ -67,3 +67,17 @@ def fetch_image_from_url(url: str):
         return img, img_b64
     except:
         return -1
+
+def image_to_base64(path_or_url: str) -> str:
+    try:
+        if path_or_url.startswith(("http://", "https://")):
+            response = requests.get(path_or_url)
+            response.raise_for_status()
+            data = response.content
+        else:
+            abs_path = os.path.abspath(path_or_url)
+            with open(abs_path, "rb") as f:
+                data = f.read()
+        return base64.b64encode(data).decode("utf-8")
+    except Exception as e:
+        raise RuntimeError(f"Failed to convert image: {e}")

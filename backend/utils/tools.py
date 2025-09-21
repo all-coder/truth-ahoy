@@ -123,7 +123,7 @@ def extract_news_articles(urls: List[str]) -> Dict[str, Any]:
         results = extract_news(urls)
         filtered_results = {}
         for url, content in results["extracted_content"].items():
-            if "error" not in content:
+            if not content.get("error"):
                 filtered_results[url] = content
         if not filtered_results:
             return {"status": "failure", "error_message": "No valid content extracted"}

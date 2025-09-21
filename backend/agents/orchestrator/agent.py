@@ -6,6 +6,7 @@ from google.adk.events import Event
 from google.adk.agents.invocation_context import InvocationContext
 from typing import AsyncGenerator
 from typing_extensions import override
+import json
 
 model = get_model()
 
@@ -36,6 +37,13 @@ class OrchestratorAgent(BaseAgent):
         """
         if ctx.user_content and ctx.user_content.parts:
             user_fact = ctx.user_content.parts[0].text
+            print("USER FACT : ",user_fact)
+            for part in ctx.user_content.parts[1:]:
+                if part.text and part.text.strip().startswith("{"):
+                    data = json.loads(part.text)
+                    if "image_urls" in data:
+                        image_urls = data["image_urls"]
+                        ctx.session.state["image_urls"] = image_urls
         else:
             yield Event(
                 author="system",
