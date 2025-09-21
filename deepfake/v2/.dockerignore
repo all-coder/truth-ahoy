@@ -1,0 +1,11 @@
+*.ipynb
+*env
+__pycache__
+*.pyc
+*.pyo
+*.git
+*.gitignore
+.vscode/
+.idea/
+*.log
+deploy_to_vertex.py
