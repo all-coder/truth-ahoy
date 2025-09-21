@@ -63,7 +63,8 @@ def push_docs_to_bq(docs_df: pd.DataFrame, model="gemini-embedding-001"):
     job = bq_client.load_table_from_dataframe(docs_df, table_id)
     job.result()
 
-def retrieve_from_bq(query_embedding: List[float], top_k=3) -> pd.DataFrame:
+def retrieve_from_bq(user_query: str, top_k=3) -> pd.DataFrame:
+    query_embedding = embed_text(user_query)
     """Retrieves top-k documents from BigQuery using VECTOR_SEARCH on embeddings."""
     table_id = TABLE_ID
     emb_array_literal = "[" + ",".join([str(float(x)) for x in query_embedding]) + "]"
