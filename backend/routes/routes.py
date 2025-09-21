@@ -15,109 +15,131 @@ session_service = InMemorySessionService()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def run_orchestrator(query: str):
+async def run_orchestrator(query: str, image_urls):
     try:
-        session = await session_service.create_session(app_name=APP_NAME, user_id=USER_ID)
-        runner = Runner(agent=OrchestratorAgent(), app_name=APP_NAME, session_service=session_service)
+        session = await session_service.create_session(
+            app_name=APP_NAME, user_id=USER_ID
+        )
+        runner = Runner(
+            agent=OrchestratorAgent(),
+            app_name=APP_NAME,
+            session_service=session_service,
+        )
 
-        content = Content(role="user", parts=[Part(text=query)])
+        content = Content(
+            role="user",
+            parts=[Part(text=query), Part(text=json.dumps({"image_urls": image_urls}))],
+        )
         final_text = None
 
-        async for event in runner.run_async(user_id=USER_ID, session_id=session.id, new_message=content):
+        async for event in runner.run_async(
+            user_id=USER_ID, session_id=session.id, new_message=content
+        ):
             if event.is_final_response():
                 final_text = event.content.parts[0].text
                 logger.info(f"Final response received: {final_text}")
 
         return final_text or "No response generated"
-        
+
     except Exception as e:
         logger.error(f"Error in run_orchestrator: {str(e)}")
         raise e
 
+
 def process_agent_response(response_text: str) -> dict:
     if not response_text:
         return {"error": "No response from agent", "status_code": 400}
-    
-    if response_text.strip().startswith('{') and response_text.strip().endswith('}'):
+
+    if response_text.strip().startswith("{") and response_text.strip().endswith("}"):
         try:
             parsed = json.loads(response_text)
-            
             if isinstance(parsed, dict):
                 if "name" in parsed and parsed.get("name") == "transfer_to_agent":
-                    return {"error": "Agent transfer not properly handled", "raw_response": parsed, "status_code": 400}
-                
+                    return {
+                        "error": "Agent transfer not properly handled",
+                        "raw_response": parsed,
+                        "status_code": 400,
+                    }
+
                 if "result" in parsed:
                     response = parsed["result"]
-                    if isinstance(response, str) and response.startswith('{'):
+                    if isinstance(response, str) and response.startswith("{"):
                         try:
-                            return {"response": json.loads(response), "status_code": 200}
+                            return {
+                                "response": json.loads(response),
+                                "status_code": 200,
+                            }
                         except json.JSONDecodeError:
                             return {"response": response, "status_code": 200}
                     return {"response": response, "status_code": 200}
-                
+
                 return {**parsed, "status_code": 200}
-            
+
         except json.JSONDecodeError:
             pass
-    
+
     return {"response": response_text, "status_code": 200}
 
 
-@router.post("/process")
-async def process_query(query: str = Body(..., embed=True)):
-    print("HIT ENDPOINT")
+@router.post("/fact-check")
+async def process_query(payload: dict):
+    print("HIT ENDPOINT",flush=True)
     try:
+        text_paragraphs = payload.get("textParagraphs", [])
+        query = " ".join(text_paragraphs)
+        image_urls = [
+            img.get("src") for img in payload.get("images", []) if img.get("src")
+        ]
         logger.info(f"Processing query: {query}")
-        raw_response = await run_orchestrator(query)
+        raw_response = await run_orchestrator(query, image_urls)
         logger.info(f"Raw response: {raw_response}")
         processed_response = process_agent_response(raw_response)
         logger.info(f"Processed response: {processed_response}")
         return processed_response
-        
+
     except Exception as e:
         logger.error(f"Error processing query: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 
 @router.post("/process-text")
 async def process_query_text_only(query: str = Body(..., embed=True)):
     try:
         response = await run_orchestrator(query)
-        
-        if response and response.strip().startswith('{'):
+
+        if response and response.strip().startswith("{"):
             try:
                 parsed = json.loads(response)
-                
+
                 if isinstance(parsed, dict):
-                    for field in ['answer', 'result', 'content', 'text', 'response']:
+                    for field in ["answer", "result", "content", "text", "response"]:
                         if field in parsed:
                             return {"result": parsed[field]}
-                    
+
                     return {"result": str(parsed)}
-                    
+
             except json.JSONDecodeError:
                 pass
-        
+
         return {"result": response}
-        
+
     except Exception as e:
         logger.error(f"Error in process_query_text_only: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/debug")
 async def debug_query(query: str = Body(..., embed=True)):
     try:
         response = await run_orchestrator(query)
-        
+
         return {
             "query": query,
             "raw_response": response,
             "response_type": type(response).__name__,
-            "is_json": response.strip().startswith('{') if response else False,
-            "length": len(response) if response else 0
+            "is_json": response.strip().startswith("{") if response else False,
+            "length": len(response) if response else 0,
         }
-        
+
     except Exception as e:
-        return {
-            "error": str(e),
-            "query": query
-        }
+        return {"error": str(e), "query": query}
