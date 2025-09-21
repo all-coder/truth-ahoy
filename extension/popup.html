@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            width: 300px;
+            padding: 16px;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 16px;
+            margin: 0 0 8px 0;
+            color: #333;
+        }
+
+        .status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .status--inactive {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .status--active {
+            background: #e7f3ff;
+            color: #007cba;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn--primary {
+            background: #007cba;
+            color: white;
+        }
+
+        .btn--primary:hover {
+            background: #005a8b;
+        }
+
+        .btn--stop {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn--stop:hover {
+            background: #c82333;
+        }
+
+        .instructions {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+        }
+
+        .instructions ul {
+            margin: 8px 0;
+            padding-left: 16px;
+        }
+
+        .instructions li {
+            margin: 4px 0;
+        }
+
+        .last-extraction {
+            margin-top: 12px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .last-extraction strong {
+            color: #333;
+        }
+
+        .extraction-stats {
+            color: #666;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>FactCheck Selector</h1>
+    </div>
+
+    <div id="status" class="status status--inactive">
+        Inactive
+    </div>
+
+    <div class="controls">
+        <button id="toggleBtn" class="btn btn--primary">
+            Start Selection
+        </button>
+    </div>
+
+    <div class="instructions">
+        <strong>How to use:</strong>
+        <ul>
+            <li>Click "Start Selection" to activate</li>
+            <li>Click and drag on the page to select content</li>
+            <li>Double-click or press Enter to confirm</li>
+            <li>Press Escape to cancel</li>
+        </ul>
+    </div>
+
+    <div id="lastExtraction" class="last-extraction" style="display: none;">
+        <strong>Last extraction:</strong>
+        <div id="extractionStats" class="extraction-stats"></div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
